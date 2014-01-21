@@ -1,0 +1,44 @@
+str(train1)
+str(train1$source)
+set.seed(1)
+#assign number to quanlititude variables
+source1<-ifelse(train$source=="New Map Widget",1,train$source)
+tag_type1<-ifelse(train$tag_type=="graffiti",1,train$tag_type)
+train$source<-source1
+train$tag_type<-tag_type1 
+train$source[is.na(train$source)]<-0
+train$tag_type[is.na(train$tag_type)]<-0
+#regression
+predict<-lm(num_votes~source1+tag_type1+longitude+latitude,data=train)
+summary(predict)
+predict_num_comments<-lm(num_comments~source+tag_type+longitude+latitude,data=train)                                   
+summary(predict_num_comments)                                           
+predict_num_views<-lm(num_views~source1+tag_type1+longitude+latitude,data=train)                                                                    
+summary(predict_num_views)  
+#assign numbers to qualititude variables          
+source2<-ifelse(test1$source=="New Map Widget",1,test1$source)
+tag_type2<-ifelse(test1$tag_type=="graffiti",1,test1$tag_type)
+test1$source<-source2
+test1$tag_type<-tag_type2 
+test1$source[is.na(test1$source)]<-0
+test1$tag_type[is.na(test1$tag_type)]<-0
+#predict num_votes deleted tag because of too many NA results
+test_predict<-data.frame(num_votes= 0.4532087+0.1369903*test1$source-0.0156475*test1$longitude+0.0152158*test1$latitude-0.0027143*test1$tag_type,
+                         num_comments=-5.2789744+0.0531675*test1$source-0.0023322*test1$longitude+0.1360084*test1$latitude+0.0011474*test1$tag_type,
+                         num_views=-137.81497-0.50440*test1$source-0.11926*test1$longitude+3.95327*test1$latitude+0.05026*test1$tag_type,
+                         data=test1)                           
+#round numbers                      
+#test_predict1<-data.frame(num_votes=round(test_predict$num_votes),
+                          #num_comments=round(test_predict$num_comments),
+                          #num_views=round(test_predict$num_views),
+                                             #data=test_predict)                                       
+
+
+#rename column 
+colnames(test_predict)[colnames(test_predict)=="data.id"] <- "id"
+
+test_predict1<-subset(test_predict,select=c(id,num_votes,num_comments,num_views))
+
+
+#save file
+write.csv(test_predict1,'~/heidi_predict.csv',row.names = TRUE)
