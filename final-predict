@@ -1,0 +1,16 @@
+lm_test<-subset(train,select=c(source,tag_type,longitude,latitude,city,num_views,num_votes,num_comments))
+lm.views.test<-lm(num_views~.,data=lm_test)
+lm.views.test
+test$num_views<-predict(lm.views.test,newdata=test)
+test$num_views<-abs(test$num_views)
+#predict num_votes
+lm.votes.test<-lm(num_votes~.,data=lm_test)
+test$num_votes<-predict(lm.votes.test,newdata=test)
+test$num_votes<-abs(test$num_votes)
+#predict num_comments
+lm.comments.test<-lm(num_comments~.,data=lm_test)
+test$num_comments<-predict(lm.comments.test,newdata=test)
+test$num_comments<-abs(test$num_comments)
+
+final<-subset(test,select=c(id,num_views,num_comments,num_votes))
+write.csv(final,'~/final_predict.csv',row.names = TRUE)
